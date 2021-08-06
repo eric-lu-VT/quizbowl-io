@@ -37,7 +37,7 @@ socket.on("connect", () => {
     clientId = socket.id;
     clientName = clientId;
 
-    console.log(clientId);
+    // console.log(clientId);
 });
 
 btnExternal.addEventListener("click", e => {
@@ -46,7 +46,7 @@ btnExternal.addEventListener("click", e => {
 
 btnDownload.addEventListener("click", e => {
 
-    console.log(txtPacketURL.value)
+    // console.log(txtPacketURL.value)
     if(txtPacketURL.value === "") {
         document.getElementById("txtDownloadError").innerHTML = "Failed to download" +
         " the packet. You did not enter a valid URL in."
@@ -96,6 +96,7 @@ socket.on("download", (response) => {
     if(response.success) {
         introScreen.style.display = "none";
         functionScreen.style.display = "block";
+        txtPacketURL.value = "";
         if(response.containsTossups) {
             btnTossup.disabled = false;
             document.getElementById("txtNoMoreTossup").style.display = "none";
@@ -164,7 +165,7 @@ function speak(text) {
     }
     var utterThis = new SpeechSynthesisUtterance(text);
     utterThis.onend = function (event) {
-        console.log("SpeechSynthesisUtterance.onend");
+        // console.log("SpeechSynthesisUtterance.onend");
     }
     utterThis.onerror = function (event) {
         console.error("SpeechSynthesisUtterance.onerror");
@@ -190,7 +191,7 @@ function testSpeech(text, isNeg) {
              
     recognition.onresult = function(event) {
         var speechResult = event.results[0][0].transcript.toLowerCase();
-        console.log("Confidence: " + event.results[0][0].confidence);
+        // console.log("Confidence: " + event.results[0][0].confidence);
                 
         txtAnswerRecieved.textContent = "Speech received: " + speechResult;
         const percentSimilar = similarity(text.toLowerCase(), speechResult.toLowerCase());
