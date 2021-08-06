@@ -1,4 +1,4 @@
-# quizbowl-io(https://quizbowl-io-cxxtx.ondigitalocean.app/)
+# [quizbowl-io](https://quizbowl-io-cxxtx.ondigitalocean.app/)
 
 A website that hosts a single player simulation of the high school question-and-answer academic competition "Quiz Bowl" (also known as "Scholar's Bowl"), using W3C's text-to-speech and speech-to-text services.
 
