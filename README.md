@@ -4,7 +4,7 @@ A website that hosts a single player simulation of the high school question-and-
 
 ## Impressions
 
-[![Watch the video]()]()
+[![Watch the video](https://img.youtube.com/vi/vRIC8L6m0Iw/hqdefault.jpg)](https://www.youtube.com/watch?v=vRIC8L6m0Iw)
 
 Click the video to watch it!
 
