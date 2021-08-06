@@ -1,0 +1,15 @@
+{
+  "dependencies": {
+    "crawler-request": "^1.2.2",
+    "express": "^4.17.1",
+    "fs": "^0.0.1-security",
+    "pdf-extract": "^1.0.11",
+    "pdf-parse": "^1.1.1",
+    "pdf-to-text": "^0.0.7",
+    "pdf.js-extract": "^0.1.5",
+    "pdfjs": "^2.4.5",
+    "pdfjs-dist": "^2.4.456",
+    "pdfreader": "^1.2.10",
+    "socket.io": "^4.1.3"
+  }
+}
