@@ -25,7 +25,7 @@ const io = socketIO(server);
 const crawler = require('crawler-request');
 
 io.on('connection', client => {
-    console.log('Client connected');
+    // console.log('Client connected');
 
     client.on("disconnect", () => {
         if(games[client.id] !== undefined) {
@@ -115,7 +115,7 @@ async function crawl(url) {
 
             var str = response.text.replace(/(\r\n|\n|\r)/gm, "");
             
-            console.log(str); // temp
+            // (str); // temp
             // console.log(response.text); // temp
     
             var values1 = str.split(/\s+/);
@@ -263,7 +263,7 @@ async function crawl(url) {
                 }
             }
 
-            console.log(packetInfo); // temp
+            // console.log(packetInfo); // temp
             resolve(packetInfo);
         });
     });

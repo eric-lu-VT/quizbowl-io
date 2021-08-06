@@ -125,6 +125,7 @@ socket.on("reset", () => {
 
 socket.on("beginQuestion", (response) => {
     settingsScreen.style.display = "none";
+    resultScreen.style.display = "none";
     btnReset.style.display = "none";
     btnTossup.style.display = "none";
     btnBonus.style.display = "none";
