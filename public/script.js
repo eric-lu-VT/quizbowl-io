@@ -1,21 +1,26 @@
+/**
+ * Script for frontend
+ * @author @eric-lu-VT (Eric Lu)
+ */
+
 let socket = io();
 let clientId = null;
 let curQuestionType = null;
 
 var synth = window.speechSynthesis;
 
+// W3C text-to-speech components
 var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition;
 var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList;
 var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent;
 
-var rate = document.querySelector("#rate");
-var rateValue = document.querySelector(".rate-value");
-
+// HTML divs in frontend, forming separate pages
 const introScreen = document.getElementById("introScreen");
 const functionScreen = document.getElementById("functionScreen");
 const settingsScreen = document.getElementById("settingsScreen");
 const resultScreen = document.getElementById("resultScreen");
 
+// Button components in frontend
 const btnExternal = document.getElementById("btnExternal");
 const btnDownload = document.getElementById("btnDownload");
 const btnReset = document.getElementById("btnReset");
@@ -23,16 +28,23 @@ const btnTossup = document.getElementById("btnTossup");
 const btnBonus = document.getElementById("btnBonus");
 const btnBuzz = document.getElementById("btnBuzz");
 
+// Input results from frontend
 const txtPacketURL = document.getElementById("txtPacketURL");
 const inputNextQuestion = document.getElementById("inputNextQuestion");
 const txtScore = document.getElementById("txtScore");
-const txtAnswerResult = document.getElementById("answerResult"); // resultPara
-const txtAnswerCorrect = document.getElementById("answerCorrect"); //phrasePara
-const txtAnswerRecieved = document.getElementById("answerRecieved"); // diagnosticPara
+const txtAnswerResult = document.getElementById("answerResult");
+const txtAnswerCorrect = document.getElementById("answerCorrect"); 
+const txtAnswerRecieved = document.getElementById("answerRecieved"); 
 const txtAnswerSimilarity = document.getElementById("answerSimilarity");
+var rate = document.querySelector("#rate");
+var rateValue = document.querySelector(".rate-value");
 
-const PERCENTAGE_THRESHOLD = 0.83;
+const PERCENTAGE_THRESHOLD = 0.83; // How 'similar' two words must be to be considered the same
 
+/**
+ * Processes to run when frontend first connects to backend.
+ * @listens "connect"
+ */
 socket.on("connect", () => {
     clientId = socket.id;
     clientName = clientId;
@@ -40,10 +52,18 @@ socket.on("connect", () => {
     // console.log(clientId);
 });
 
+/**
+ * Processes to run when "btnExternal" is pressed.
+ * @listens "click"
+ */
 btnExternal.addEventListener("click", e => {
     window.open("https://quizbowlpackets.com/");
 });
 
+/**
+ * Processes to run when "btnDownload" is pressed.
+ * @listens "click"
+ */
 btnDownload.addEventListener("click", e => {
 
     // console.log(txtPacketURL.value)
@@ -58,40 +78,60 @@ btnDownload.addEventListener("click", e => {
             "packetURL": txtPacketURL.value
         }
 
-        socket.emit("download", payLoad);
+        socket.emit("download", payLoad); // send to backend
     }
 });
 
+/**
+ * Processes to run when "btnReset" is pressed.
+ * @listens "click"
+ */
 btnReset.addEventListener("click", e => {
-    socket.emit("reset", clientId);
+    socket.emit("reset", clientId); // send to backend
 });
 
+/**
+ * Processes to run when "btnTossup" is pressed.
+ * @listens "click"
+ */
 btnTossup.addEventListener("click", e => {
     const payLoad = {
         "clientId": clientId,
         "typeQuestion": "tossup"
     }
 
-    socket.emit("beginQuestion", payLoad);
+    socket.emit("beginQuestion", payLoad); // send to backend
 });
 
+/**
+ * Processes to run when "btnBonus" is pressed.
+ * @listens "click"
+ */
 btnBonus.addEventListener("click", e => {
     const payLoad = {
         "clientId": clientId,
         "typeQuestion": "bonus"
     }
 
-    socket.emit("beginQuestion", payLoad);
+    socket.emit("beginQuestion", payLoad); // send to backend
 });
 
+/**
+ * Processes to run when "btnBuzz" is pressed.
+ * @listens "click"
+ */
 btnBuzz.addEventListener("click", e => {
     const payLoad = {
         "clientId": clientId,
         "typeQuestion": curQuestionType
     }
-    socket.emit("buzz", payLoad);
+    socket.emit("buzz", payLoad); // send to backend
 });
 
+/**
+ * Processes to run when "download" is recieved from backend.
+ * @listens "download"
+ */
 socket.on("download", (response) => {
     if(response.success) {
         introScreen.style.display = "none";
@@ -118,12 +158,20 @@ socket.on("download", (response) => {
     }
 });
 
+/**
+ * Processes to run when "reset" is recieved from backend.
+ * @listens "reset"
+ */
 socket.on("reset", () => {
     introScreen.style.display = "block";
     functionScreen.style.display = "none";
     resultScreen.style.display = "none";
 });
 
+/**
+ * Procesess to run when "beginQuestion" is recieved from backend.
+ * @listens "beginQuestion"
+ */
 socket.on("beginQuestion", (response) => {
     settingsScreen.style.display = "none";
     resultScreen.style.display = "none";
@@ -135,6 +183,10 @@ socket.on("beginQuestion", (response) => {
     speak(response.question);
 });
 
+/**
+ * Processes to run when "buzz" is recieved from backend.
+ * @listens "buzz"
+ */
 socket.on("buzz", (response) => {
     const isNeg = synth.speaking;
     synth.pause();
@@ -150,14 +202,25 @@ socket.on("buzz", (response) => {
     testSpeech(response.answer, isNeg);
 });
 
+/**
+ * Processes to run when "updateScore" is recieved from backend.
+ * @listens "updateScore"
+ */
 socket.on("updateScore", (response) => {
     txtScore.textContent = "Your Score: " + response.newScore;
 });
 
+/**
+ * Change rate variable when rate of speech slider is changed.
+ */
 rate.onchange = function() {
     rateValue.textContent = rate.value;
 }
 
+/**
+ * Text-to-speech function.
+ * @param {*} text the text to speak
+ */
 function speak(text) {
     if(synth.speaking) {
         console.error("speechSynthesis.speaking");
@@ -175,6 +238,11 @@ function speak(text) {
     synth.speak(utterThis);
 }
 
+/**
+ * Tests if answer recieved is right, and displays results
+ * @param {*} text answer recieved 
+ * @param {Boolean} isNeg if the question has the potential of being a neg
+ */
 function testSpeech(text, isNeg) {
     text = text.toLowerCase();
 
@@ -231,6 +299,11 @@ function testSpeech(text, isNeg) {
     }
 }
 
+/**
+ * Updates the user's score.
+ * @param {Number} amnt amount to update score by
+ * @param {String} clientId socket id of frontend
+ */
 function updateScore(amnt, clientId) {
     const payLoad = {
         "clientId": clientId,

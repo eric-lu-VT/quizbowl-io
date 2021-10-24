@@ -4,35 +4,43 @@
 const clients = {};
 const games = {};
 
+const crawler = require('crawler-request');
 const express = require('express');
 const socketIO = require('socket.io');
 const PORT = process.env.PORT || 8000;
 const INDEX = '/index.html';
 const path = require('path');
 
+// Connect frontend to express
 const server = express()
     .use('/', express.static(path.join(__dirname, 'public')))
     .get("/", (req,res)=> res.sendFile(__dirname + "/public/index.html"))
     .listen(PORT, () => console.log(`Listening on ${PORT}`));
-/*
-const server = express()
-  .use((req, res) => res.sendFile(INDEX, { root: __dirname }))
-  .use(express.static('public'))
-  .listen(PORT, () => console.log(`Listening on ${PORT}));
-*/
+
+// Connect frontend to websocket
 const io = socketIO(server);
 
-const crawler = require('crawler-request');
-
+/**
+ * Processes to run when frontend communicates to backend.
+ * @listens "connection"
+ */
 io.on('connection', client => {
     // console.log('Client connected');
 
+    /**
+     * Processes to run when "disconnect" is recieved from frontend.
+     * @listens "disconnect"
+     */
     client.on("disconnect", () => {
         if(games[client.id] !== undefined) {
             delete games[client.id];
         }
     });
 
+    /**
+     * Processes to run when "download" is recieved from frontend.
+     * @listens "download"
+     */
     client.on("download", (result) => {
         const clientId = result.clientId;
 
@@ -52,15 +60,23 @@ io.on('connection', client => {
                 "score": 0,
             }
 
-            io.to(clientId).emit("download", payLoad);
+            io.to(clientId).emit("download", payLoad); // send to frontend
         });
     });
 
+    /**
+     * Processes to run when "reset" is recieved from frontend.
+     * @listens "reset"
+     */
     client.on("reset", (clientId) => {
         games[clientId] = null;
-        io.to(clientId).emit("reset");
+        io.to(clientId).emit("reset"); // send to frontend
     });
 
+    /**
+     * Processes to run when "beginQuestion" is recieved from frontend.
+     * @listens "beginQuestion"
+     */
     client.on("beginQuestion", (result) => {
         const curPacket = games[result.clientId];
         games[result.clientId].curQuestion = (result.typeQuestion === "tossup" ? 
@@ -71,9 +87,13 @@ io.on('connection', client => {
             "typeQuestion": "tossup"
         }
 
-        io.to(result.clientId).emit("beginQuestion", payLoad);
+        io.to(result.clientId).emit("beginQuestion", payLoad); // send to frontend
     });
 
+    /**
+     * Processes to run when "buzz" is recieved from frontend.
+     * @listens "buzz"
+     */
     client.on("buzz", (result) => {
         const curPacket = games[result.clientId];
 
@@ -83,9 +103,13 @@ io.on('connection', client => {
             "isBonusesEmpty": curPacket.packet.bonuses.length === 0
         }
 
-        io.to(result.clientId).emit("buzz", payLoad);
+        io.to(result.clientId).emit("buzz", payLoad); // send to frontend
     });
 
+    /**
+     * Processes to run when "updateScore" is recieved from frontend.
+     * @listens "updateScore"
+     */
     client.on("updateScore", (result) => {
         games[result.clientId].score += result.amnt;
 
@@ -93,7 +117,7 @@ io.on('connection', client => {
             "newScore": games[result.clientId].score
         }
 
-        io.to(result.clientId).emit("updateScore", payLoad);
+        io.to(result.clientId).emit("updateScore", payLoad); // send to frontend
     });
     
 });
@@ -263,7 +287,6 @@ async function crawl(url) {
                 }
             }
 
-            // console.log(packetInfo); // temp
             resolve(packetInfo);
         });
     });
